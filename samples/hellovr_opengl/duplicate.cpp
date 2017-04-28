@@ -122,11 +122,8 @@ private: // SDL bookkeeping
 	SDL_GLContext m_pContext;
 
 private: // OpenGL bookkeeping
-	int m_iValidPoseCount;
-	int m_iValidPoseCount_Last;
 	bool m_bShowCubes;
 
-	std::string m_strPoseClasses;                            // what classes we saw poses for this frame
 	char m_rDevClassChar[vr::k_unMaxTrackedDeviceCount];   // for each device, a character representing its class
 
 	int m_iSceneVolumeWidth;
@@ -240,10 +237,7 @@ CMainApplication::CMainApplication(int argc, char *argv[])
 	, m_nSceneMatrixLocation(-1)
 	, m_nControllerMatrixLocation(-1)
 	, m_nRenderModelMatrixLocation(-1)
-	, m_iValidPoseCount(0)
-	, m_iValidPoseCount_Last(-1)
 	, m_iSceneVolumeInit(20)
-	, m_strPoseClasses("")
 	, m_bShowCubes(true){};
 
 
@@ -1310,13 +1304,10 @@ void CMainApplication::UpdateHMDMatrixPose()
 
 	vr::VRCompositor()->WaitGetPoses(m_rTrackedDevicePose, vr::k_unMaxTrackedDeviceCount, NULL, 0);
 
-	m_iValidPoseCount = 0;
-	m_strPoseClasses = "";
 	for (int nDevice = 0; nDevice < vr::k_unMaxTrackedDeviceCount; ++nDevice)
 	{
 		if (m_rTrackedDevicePose[nDevice].bPoseIsValid)
 		{
-			m_iValidPoseCount++;
 			m_rmat4DevicePose[nDevice] = ConvertSteamVRMatrixToMatrix4(m_rTrackedDevicePose[nDevice].mDeviceToAbsoluteTracking);
 			if (m_rDevClassChar[nDevice] == 0)
 			{
@@ -1330,7 +1321,6 @@ void CMainApplication::UpdateHMDMatrixPose()
 				default:                                       m_rDevClassChar[nDevice] = '?'; break;
 				}
 			}
-			m_strPoseClasses += m_rDevClassChar[nDevice];
 		}
 	}
 
