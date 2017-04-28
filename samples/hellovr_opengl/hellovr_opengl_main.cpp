@@ -139,10 +139,10 @@ private: // SDL bookkeeping
 	SDL_GLContext m_pContext;
 
 private: // OpenGL bookkeeping
-	int m_iTrackedControllerCount;
-	int m_iTrackedControllerCount_Last;
-	int m_iValidPoseCount;
-	int m_iValidPoseCount_Last;
+	//int m_iTrackedControllerCount;
+	//int m_iTrackedControllerCount_Last;
+	//int m_iValidPoseCount;
+	//int m_iValidPoseCount_Last;
 	bool m_bShowCubes;
 
 	std::string m_strPoseClasses;                            // what classes we saw poses for this frame
@@ -269,12 +269,12 @@ CMainApplication::CMainApplication( int argc, char *argv[] )
 	, m_nSceneMatrixLocation( -1 )
 	, m_nControllerMatrixLocation( -1 )
 	, m_nRenderModelMatrixLocation( -1 )
-	, m_iTrackedControllerCount( 0 )
-	, m_iTrackedControllerCount_Last( -1 )
-	, m_iValidPoseCount( 0 )
-	, m_iValidPoseCount_Last( -1 )
-	, m_iSceneVolumeInit( 20 )
-	, m_strPoseClasses("")
+	//, m_iTrackedControllerCount( 0 )
+	//, m_iTrackedControllerCount_Last( -1 )
+	//, m_iValidPoseCount( 0 )
+	//, m_iValidPoseCount_Last( -1 )
+	, m_iSceneVolumeInit( 20 ) // anzahl der cubes in jede richtung
+	//, m_strPoseClasses("")
 	, m_bShowCubes( true )
 {
 
@@ -431,10 +431,13 @@ bool CMainApplication::BInit()
 	SDL_SetWindowTitle( m_pCompanionWindow, strWindowTitle.c_str() );
 	
 	// cube array
- 	m_iSceneVolumeWidth = m_iSceneVolumeInit;
- 	m_iSceneVolumeHeight = m_iSceneVolumeInit;
- 	m_iSceneVolumeDepth = m_iSceneVolumeInit;
- 		
+	//m_iSceneVolumeWidth = 5;
+	//m_iSceneVolumeHeight = 20;
+	//m_iSceneVolumeDepth = 2;
+	m_iSceneVolumeWidth = m_iSceneVolumeInit;
+	m_iSceneVolumeHeight = m_iSceneVolumeInit;
+	m_iSceneVolumeDepth = m_iSceneVolumeInit;
+
  	m_fScale = 0.3f;
  	m_fScaleSpacing = 4.0f;
  
@@ -1129,7 +1132,7 @@ void CMainApplication::RenderControllerAxes()
 	std::vector<float> vertdataarray;
 
 	m_uiControllerVertcount = 0;
-	m_iTrackedControllerCount = 0;
+	//m_iTrackedControllerCount = 0;
 
 	for ( vr::TrackedDeviceIndex_t unTrackedDevice = vr::k_unTrackedDeviceIndex_Hmd + 1; unTrackedDevice < vr::k_unMaxTrackedDeviceCount; ++unTrackedDevice )
 	{
@@ -1547,13 +1550,13 @@ void CMainApplication::UpdateHMDMatrixPose()
 
 	vr::VRCompositor()->WaitGetPoses(m_rTrackedDevicePose, vr::k_unMaxTrackedDeviceCount, NULL, 0 );
 
-	m_iValidPoseCount = 0;
-	m_strPoseClasses = "";
+	//m_iValidPoseCount = 0;
+	//m_strPoseClasses = "";
 	for ( int nDevice = 0; nDevice < vr::k_unMaxTrackedDeviceCount; ++nDevice )
 	{
 		if ( m_rTrackedDevicePose[nDevice].bPoseIsValid )
 		{
-			m_iValidPoseCount++;
+			//m_iValidPoseCount++;
 			m_rmat4DevicePose[nDevice] = ConvertSteamVRMatrixToMatrix4( m_rTrackedDevicePose[nDevice].mDeviceToAbsoluteTracking );
 			if (m_rDevClassChar[nDevice]==0)
 			{
@@ -1567,7 +1570,7 @@ void CMainApplication::UpdateHMDMatrixPose()
 				default:                                       m_rDevClassChar[nDevice] = '?'; break;
 				}
 			}
-			m_strPoseClasses += m_rDevClassChar[nDevice];
+			//m_strPoseClasses += m_rDevClassChar[nDevice];
 		}
 	}
 
