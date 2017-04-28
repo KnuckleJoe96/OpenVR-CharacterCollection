@@ -83,8 +83,6 @@ public:
 	void AddCubeToScene(Matrix4 mat, std::vector<float> &vertdata);
 	void AddCubeVertex(float fl0, float fl1, float fl2, float fl3, float fl4, std::vector<float> &vertdata);
 
-	void RenderControllerAxes();
-
 	bool SetupStereoRenderTargets();
 	void SetupCompanionWindow();
 	void SetupCameras();
@@ -274,22 +272,16 @@ std::string GetTrackedDeviceString(vr::IVRSystem *pHmd, vr::TrackedDeviceIndex_t
 //-----------------------------------------------------------------------------
 bool CMainApplication::BInit()
 {
-	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) < 0)
-	{
-		printf("%s - SDL could not initialize! SDL Error: %s\n", __FUNCTION__, SDL_GetError());
-		return false;
-	}
-
 	// Loading the SteamVR Runtime
 	vr::EVRInitError eError = vr::VRInitError_None;
 	m_pHMD = vr::VR_Init(&eError, vr::VRApplication_Scene);
 
 	if (eError != vr::VRInitError_None)
 	{
-		m_pHMD = NULL;
-		char buf[1024];
-		sprintf_s(buf, sizeof(buf), "Unable to init VR runtime: %s", vr::VR_GetVRInitErrorAsEnglishDescription(eError));
-		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "VR_Init Failed", buf, NULL);
+		//m_pHMD = NULL;
+		//char buf[1024];
+		//sprintf_s(buf, sizeof(buf), "Unable to init VR runtime: %s", vr::VR_GetVRInitErrorAsEnglishDescription(eError));
+		//SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "VR_Init Failed", buf, NULL);
 		return false;
 	}
 
@@ -297,27 +289,14 @@ bool CMainApplication::BInit()
 	int nWindowPosY = 100;
 	Uint32 unWindowFlags = SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN;
 
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-
-	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 0);
-	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 0);
-
 	m_pCompanionWindow = SDL_CreateWindow("hellovr", nWindowPosX, nWindowPosY, m_nCompanionWindowWidth, m_nCompanionWindowHeight, unWindowFlags);
-	if (m_pCompanionWindow == NULL)
-	{
-		printf("%s - Window could not be created! SDL Error: %s\n", __FUNCTION__, SDL_GetError());
-		return false;
-	}
 
 	m_pContext = SDL_GL_CreateContext(m_pCompanionWindow);
 
 	glewExperimental = GL_TRUE;
 	GLenum nGlewError = glewInit();
-	if (nGlewError != GLEW_OK)
-	{
-		printf("%s - Error initializing GLEW! %s\n", __FUNCTION__, glewGetErrorString(nGlewError));
+	if (nGlewError != GLEW_OK){
+		//printf("%s - Error initializing GLEW! %s\n", __FUNCTION__, glewGetErrorString(nGlewError));
 		return false;
 	}
 	glGetError(); // to clear the error caused deep in GLEW
@@ -543,7 +522,6 @@ void CMainApplication::RenderFrame()
 	// for now as fast as possible
 	if (m_pHMD)
 	{
-		RenderControllerAxes();
 		RenderStereoTargets();
 		RenderCompanionWindow();
 
@@ -902,80 +880,6 @@ void CMainApplication::AddCubeToScene(Matrix4 mat, std::vector<float> &vertdata)
 	AddCubeVertex(G.x, G.y, G.z, 0, 0, vertdata);
 	AddCubeVertex(F.x, F.y, F.z, 0, 1, vertdata);
 }
-
-
-//-----------------------------------------------------------------------------
-// Purpose: Draw all of the controllers as X/Y/Z lines
-//-----------------------------------------------------------------------------
-void CMainApplication::RenderControllerAxes()
-{
-	// don't draw controllers if somebody else has input focus
-	if (m_pHMD->IsInputFocusCapturedByAnotherProcess())
-		return;
-
-	std::vector<float> vertdataarray;
-
-	m_uiControllerVertcount = 0;
-
-	for (vr::TrackedDeviceIndex_t unTrackedDevice = vr::k_unTrackedDeviceIndex_Hmd + 1; unTrackedDevice < vr::k_unMaxTrackedDeviceCount; ++unTrackedDevice)
-	{
-		if (!m_pHMD->IsTrackedDeviceConnected(unTrackedDevice))
-			continue;
-
-		
-		if (!m_rTrackedDevicePose[unTrackedDevice].bPoseIsValid)
-			continue;
-
-		const Matrix4 & mat = m_rmat4DevicePose[unTrackedDevice];
-
-		Vector4 center = mat * Vector4(0, 0, 0, 1);
-
-		for (int i = 0; i < 3; ++i)
-		{
-			Vector3 color(0, 0, 0);
-			Vector4 point(0, 0, 0, 1);
-			point[i] += 0.05f;  // offset in X, Y, Z
-			color[i] = 1.0;  // R, G, B
-			point = mat * point;
-			vertdataarray.push_back(center.x);
-			vertdataarray.push_back(center.y);
-			vertdataarray.push_back(center.z);
-
-			vertdataarray.push_back(color.x);
-			vertdataarray.push_back(color.y);
-			vertdataarray.push_back(color.z);
-
-			vertdataarray.push_back(point.x);
-			vertdataarray.push_back(point.y);
-			vertdataarray.push_back(point.z);
-
-			vertdataarray.push_back(color.x);
-			vertdataarray.push_back(color.y);
-			vertdataarray.push_back(color.z);
-
-			m_uiControllerVertcount += 2;
-		}
-
-		Vector4 start = mat * Vector4(0, 0, -0.02f, 1);
-		Vector4 end = mat * Vector4(0, 0, -39.f, 1);
-		Vector3 color(.92f, .92f, .71f);
-
-		vertdataarray.push_back(start.x); vertdataarray.push_back(start.y); vertdataarray.push_back(start.z);
-		vertdataarray.push_back(color.x); vertdataarray.push_back(color.y); vertdataarray.push_back(color.z);
-
-		vertdataarray.push_back(end.x); vertdataarray.push_back(end.y); vertdataarray.push_back(end.z);
-		vertdataarray.push_back(color.x); vertdataarray.push_back(color.y); vertdataarray.push_back(color.z);
-		m_uiControllerVertcount += 2;
-	}
-
-	// set vertex data if we have some
-	if (vertdataarray.size() > 0)
-	{
-		//$ TODO: Use glBufferSubData for this...
-		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * vertdataarray.size(), &vertdataarray[0], GL_STREAM_DRAW);
-	}
-}
-
 
 //-----------------------------------------------------------------------------
 // Purpose:
