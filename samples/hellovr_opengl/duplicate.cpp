@@ -74,7 +74,6 @@ public:
 
 	void RunMainLoop();
 	bool HandleInput();
-	void ProcessVREvent(const vr::VREvent_t & event);
 	void RenderFrame();
 
 	bool SetupTexturemaps();
@@ -101,13 +100,8 @@ public:
 	GLuint CompileGLShader(const char *pchShaderName, const char *pchVertexShader, const char *pchFragmentShader);
 	bool CreateAllShaders();
 
-	void SetupRenderModelForTrackedDevice(vr::TrackedDeviceIndex_t unTrackedDeviceIndex);
-	CGLRenderModel *FindOrLoadRenderModel(const char *pchRenderModelName);
-
 private:
 	vr::IVRSystem *m_pHMD;
-	std::string m_strDriver;
-	std::string m_strDisplay;
 	vr::TrackedDevicePose_t m_rTrackedDevicePose[vr::k_unMaxTrackedDeviceCount];
 	Matrix4 m_rmat4DevicePose[vr::k_unMaxTrackedDeviceCount];
 	bool m_rbShowTrackedDevice[vr::k_unMaxTrackedDeviceCount];
@@ -294,20 +288,15 @@ bool CMainApplication::BInit()
 	m_pContext = SDL_GL_CreateContext(m_pCompanionWindow);
 
 	glewExperimental = GL_TRUE;
-	GLenum nGlewError = glewInit();
+	GLenum nGlewError = glewInit(); // FUNKTIONSAUFRUF --------------------------------------------------------------
 	if (nGlewError != GLEW_OK){
 		//printf("%s - Error initializing GLEW! %s\n", __FUNCTION__, glewGetErrorString(nGlewError));
 		return false;
 	}
 	glGetError(); // to clear the error caused deep in GLEW
 
-	m_strDriver = "No Driver";
-	m_strDisplay = "No Display";
 
-	m_strDriver = GetTrackedDeviceString(m_pHMD, vr::k_unTrackedDeviceIndex_Hmd, vr::Prop_TrackingSystemName_String);
-	m_strDisplay = GetTrackedDeviceString(m_pHMD, vr::k_unTrackedDeviceIndex_Hmd, vr::Prop_SerialNumber_String);
-
-	std::string strWindowTitle = "hellovr - " + m_strDriver + " " + m_strDisplay;
+	std::string strWindowTitle = "Unser IT-Projekt";
 	SDL_SetWindowTitle(m_pCompanionWindow, strWindowTitle.c_str());
 
 	// cube array
@@ -368,7 +357,7 @@ bool CMainApplication::BInitGL()
 	SetupCameras();
 	SetupStereoRenderTargets();
 	SetupCompanionWindow();
-	SetupRenderModels();
+	//SetupRenderModels();
 
 	return true;
 }
@@ -446,23 +435,6 @@ bool CMainApplication::HandleInput()
 		}
 	}
 
-	// Process SteamVR events
-	vr::VREvent_t event;
-	while (m_pHMD->PollNextEvent(&event, sizeof(event)))
-	{
-		ProcessVREvent(event);
-	}
-
-	// Process SteamVR controller state
-	for (vr::TrackedDeviceIndex_t unDevice = 0; unDevice < vr::k_unMaxTrackedDeviceCount; unDevice++)
-	{
-		vr::VRControllerState_t state;
-		if (m_pHMD->GetControllerState(unDevice, &state, sizeof(state)))
-		{
-			m_rbShowTrackedDevice[unDevice] = state.ulButtonPressed == 0;
-		}
-	}
-
 	return bRet;
 }
 
@@ -485,34 +457,6 @@ void CMainApplication::RunMainLoop()
 
 	SDL_StopTextInput();
 }
-
-
-//-----------------------------------------------------------------------------
-// Purpose: Processes a single VR event
-//-----------------------------------------------------------------------------
-void CMainApplication::ProcessVREvent(const vr::VREvent_t & event)
-{
-	switch (event.eventType)
-	{
-	case vr::VREvent_TrackedDeviceActivated:
-	{
-		SetupRenderModelForTrackedDevice(event.trackedDeviceIndex);
-		dprintf("Device %u attached. Setting up render model.\n", event.trackedDeviceIndex);
-	}
-	break;
-	case vr::VREvent_TrackedDeviceDeactivated:
-	{
-		dprintf("Device %u detached.\n", event.trackedDeviceIndex);
-	}
-	break;
-	case vr::VREvent_TrackedDeviceUpdated:
-	{
-		dprintf("Device %u updated.\n", event.trackedDeviceIndex);
-	}
-	break;
-	}
-}
-
 
 //-----------------------------------------------------------------------------
 // Purpose:
@@ -800,11 +744,6 @@ void CMainApplication::SetupScene()
 	offset += sizeof(Vector3);
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride, (const void *)offset);
-
-	glBindVertexArray(0);
-	glDisableVertexAttribArray(0);
-	glDisableVertexAttribArray(1);
-
 }
 
 
@@ -1084,25 +1023,6 @@ void CMainApplication::RenderScene(vr::Hmd_Eye nEye)
 	// ----- Render Model rendering -----
 	glUseProgram(m_unRenderModelProgramID);
 
-	for (uint32_t unTrackedDevice = 0; unTrackedDevice < vr::k_unMaxTrackedDeviceCount; unTrackedDevice++)
-	{
-		if (!m_rTrackedDeviceToRenderModel[unTrackedDevice] || !m_rbShowTrackedDevice[unTrackedDevice])
-			continue;
-
-		const vr::TrackedDevicePose_t & pose = m_rTrackedDevicePose[unTrackedDevice];
-		if (!pose.bPoseIsValid)
-			continue;
-
-		if (bIsInputCapturedByAnotherProcess && m_pHMD->GetTrackedDeviceClass(unTrackedDevice) == vr::TrackedDeviceClass_Controller)
-			continue;
-
-		const Matrix4 & matDeviceToTracking = m_rmat4DevicePose[unTrackedDevice];
-		Matrix4 matMVP = GetCurrentViewProjectionMatrix(nEye) * matDeviceToTracking;
-		glUniformMatrix4fv(m_nRenderModelMatrixLocation, 1, GL_FALSE, matMVP.get());
-
-		m_rTrackedDeviceToRenderModel[unTrackedDevice]->Draw();
-	}
-
 	glUseProgram(0);
 }
 
@@ -1235,102 +1155,6 @@ void CMainApplication::UpdateHMDMatrixPose()
 	}
 }
 
-
-//-----------------------------------------------------------------------------
-// Purpose: Finds a render model we've already loaded or loads a new one
-//-----------------------------------------------------------------------------
-CGLRenderModel *CMainApplication::FindOrLoadRenderModel(const char *pchRenderModelName)
-{
-	CGLRenderModel *pRenderModel = NULL;
-	for (std::vector< CGLRenderModel * >::iterator i = m_vecRenderModels.begin(); i != m_vecRenderModels.end(); i++)
-	{
-		if (!stricmp((*i)->GetName().c_str(), pchRenderModelName))
-		{
-			pRenderModel = *i;
-			break;
-		}
-	}
-
-	// load the model if we didn't find one
-	if (!pRenderModel)
-	{
-		vr::RenderModel_t *pModel;
-		vr::EVRRenderModelError error;
-		while (1)
-		{
-			error = vr::VRRenderModels()->LoadRenderModel_Async(pchRenderModelName, &pModel);
-			if (error != vr::VRRenderModelError_Loading)
-				break;
-
-			ThreadSleep(1);
-		}
-
-		vr::RenderModel_TextureMap_t *pTexture;
-		while (1)
-		{
-			error = vr::VRRenderModels()->LoadTexture_Async(pModel->diffuseTextureId, &pTexture);
-			if (error != vr::VRRenderModelError_Loading)
-				break;
-
-			ThreadSleep(1);
-		}
-
-		pRenderModel = new CGLRenderModel(pchRenderModelName);
-
-		m_vecRenderModels.push_back(pRenderModel);
-
-		vr::VRRenderModels()->FreeRenderModel(pModel);
-		vr::VRRenderModels()->FreeTexture(pTexture);
-	}
-	return pRenderModel;
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose: Create/destroy GL a Render Model for a single tracked device
-//-----------------------------------------------------------------------------
-void CMainApplication::SetupRenderModelForTrackedDevice(vr::TrackedDeviceIndex_t unTrackedDeviceIndex)
-{
-	if (unTrackedDeviceIndex >= vr::k_unMaxTrackedDeviceCount)
-		return;
-
-	// try to find a model we've already set up
-	std::string sRenderModelName = GetTrackedDeviceString(m_pHMD, unTrackedDeviceIndex, vr::Prop_RenderModelName_String);
-	CGLRenderModel *pRenderModel = FindOrLoadRenderModel(sRenderModelName.c_str());
-	if (!pRenderModel)
-	{
-		std::string sTrackingSystemName = GetTrackedDeviceString(m_pHMD, unTrackedDeviceIndex, vr::Prop_TrackingSystemName_String);
-		dprintf("Unable to load render model for tracked device %d (%s.%s)", unTrackedDeviceIndex, sTrackingSystemName.c_str(), sRenderModelName.c_str());
-	}
-	else
-	{
-		m_rTrackedDeviceToRenderModel[unTrackedDeviceIndex] = pRenderModel;
-		m_rbShowTrackedDevice[unTrackedDeviceIndex] = true;
-	}
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose: Create/destroy GL Render Models
-//-----------------------------------------------------------------------------
-void CMainApplication::SetupRenderModels()
-{
-	memset(m_rTrackedDeviceToRenderModel, 0, sizeof(m_rTrackedDeviceToRenderModel));
-
-	if (!m_pHMD)
-		return;
-
-	for (uint32_t unTrackedDevice = vr::k_unTrackedDeviceIndex_Hmd + 1; unTrackedDevice < vr::k_unMaxTrackedDeviceCount; unTrackedDevice++)
-	{
-		if (!m_pHMD->IsTrackedDeviceConnected(unTrackedDevice))
-			continue;
-
-		SetupRenderModelForTrackedDevice(unTrackedDevice);
-	}
-
-}
-
-
 //-----------------------------------------------------------------------------
 // Purpose: Converts a SteamVR matrix to our local matrix class
 //-----------------------------------------------------------------------------
@@ -1435,22 +1259,6 @@ void CGLRenderModel::Cleanup()
 		m_glVertArray = 0;
 		m_glVertBuffer = 0;
 	}
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose: Draws the render model
-//-----------------------------------------------------------------------------
-void CGLRenderModel::Draw()
-{
-	glBindVertexArray(m_glVertArray);
-
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, m_glTexture);
-
-	glDrawElements(GL_TRIANGLES, m_unVertexCount, GL_UNSIGNED_SHORT, 0);
-
-	glBindVertexArray(0);
 }
 
 
