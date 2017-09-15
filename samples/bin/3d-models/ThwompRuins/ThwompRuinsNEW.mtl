@@ -1,0 +1,57 @@
+# MTL written from /Users/poppluk/Google Drive/Studium/IT-Projekt/3D-Objectcs/Wii U - Mario Kart 8 - Thwomp Ruins/ThwompRuins/ThwompRuinsNEW.obj
+newmtl di_Grass1
+Kd 0.64 0.64 0.64
+Ns 96.0784
+d 0
+illum 1
+Ka 0 0 0
+Ks 0 0 0
+map_Kd /Users/poppluk/Google Drive/Studium/IT-Projekt/3D-Objectcs/Wii U - Mario Kart 8 - Thwomp Ruins/di_Glass_Alb.png
+newmtl di_Grass2
+Kd 0.64 0.64 0.64
+Ns 96.0784
+d 0
+illum 1
+Ka 0 0 0
+Ks 0 0 0
+map_Kd /Users/poppluk/Google Drive/Studium/IT-Projekt/3D-Objectcs/Wii U - Mario Kart 8 - Thwomp Ruins/di_Glass_Alb.png
+newmtl di_Kusa_A
+Kd 0.64 0.64 0.64
+Ns 96.0784
+d 0
+illum 1
+Ka 0 0 0
+Ks 0 0 0
+map_Kd /Users/poppluk/Google Drive/Studium/IT-Projekt/3D-Objectcs/Wii U - Mario Kart 8 - Thwomp Ruins/di_Kusa_A_Alb.png
+newmtl di_Tree_Leaf
+Kd 0.64 0.64 0.64
+Ns 96.0784
+d 0
+illum 1
+Ka 0 0 0
+Ks 0 0 0
+map_Kd /Users/poppluk/Google Drive/Studium/IT-Projekt/3D-Objectcs/Wii U - Mario Kart 8 - Thwomp Ruins/di_Tree_Leaf_Alb.png
+newmtl di_Tree_Root
+Kd 0.64 0.64 0.64
+Ns 96.0784
+d 0
+illum 1
+Ka 0 0 0
+Ks 0 0 0
+map_Kd /Users/poppluk/Google Drive/Studium/IT-Projekt/3D-Objectcs/Wii U - Mario Kart 8 - Thwomp Ruins/di_TreeShaft_Alb.png
+newmtl di_rock
+Kd 0.64 0.64 0.64
+Ns 96.0784
+d 0
+illum 1
+Ka 0 0 0
+Ks 0 0 0
+map_Kd /Users/poppluk/Google Drive/Studium/IT-Projekt/3D-Objectcs/Wii U - Mario Kart 8 - Thwomp Ruins/di_rock01_Alb.png
+newmtl di_rock_Dossun
+Kd 0.64 0.64 0.64
+Ns 96.0784
+d 0
+illum 1
+Ka 0 0 0
+Ks 0 0 0
+map_Kd /Users/poppluk/Google Drive/Studium/IT-Projekt/3D-Objectcs/Wii U - Mario Kart 8 - Thwomp Ruins/di_rock01_Alb.png

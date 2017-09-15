@@ -1,0 +1,9 @@
+# MTL written from /Users/poppluk/Google Drive/Studium/IT-Projekt/3D-Objectcs/Wii U - Mario Kart 8 - Thwomp Ruins/ThwompRuins/grass_border.obj
+newmtl di_Kusa_A
+Kd 0.64 0.64 0.64
+Ns 96.0784
+d 0
+illum 1
+Ka 0 0 0
+Ks 0 0 0
+map_Kd /Users/poppluk/Google Drive/Studium/IT-Projekt/3D-Objectcs/Wii U - Mario Kart 8 - Thwomp Ruins/di_Kusa_A_Alb.png
