@@ -1,0 +1,196 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="CMainApplication">
+    <Position X="11.75" Y="0.5" Width="2.5" />
+    <NestedTypes>
+      <Struct Name="CMainApplication::VertexDataScene" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>hellovr_opengl_main.cpp</NewMemberFileName>
+        </TypeIdentifier>
+      </Struct>
+      <Struct Name="CMainApplication::VertexDataWindow" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>hellovr_opengl_main.cpp</NewMemberFileName>
+        </TypeIdentifier>
+      </Struct>
+      <Struct Name="CMainApplication::FramebufferDesc" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>hellovr_opengl_main.cpp</NewMemberFileName>
+        </TypeIdentifier>
+      </Struct>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>EgbIUgrABIJBCiRoKGBoEQCoUQUAAGEQGBANXVEAIQg=</HashCode>
+      <FileName>hellovr_opengl_main.cpp</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Matrix2" Collapsed="true">
+    <Position X="6.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>IAAAAAAEAgBAAIAAAAQAQQAAAAEAAAAACgAgAABAAAA=</HashCode>
+      <FileName>C:\Users\Admin\Desktop\ViveGameEngine\openvr-master\samples\shared\Matrices.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Matrix3" Collapsed="true">
+    <Position X="8.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>IAAAAAAEAgBAAEAAAAQAQQAAAAEAAAAACgAgAABAAAA=</HashCode>
+      <FileName>C:\Users\Admin\Desktop\ViveGameEngine\openvr-master\samples\shared\Matrices.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Matrix4" Collapsed="true">
+    <Position X="10" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>IAAAAAAEAgDgIAIIAAQQWwACAAEAAAAACgAgAABABgA=</HashCode>
+      <FileName>C:\Users\Admin\Desktop\ViveGameEngine\openvr-master\samples\shared\Matrices.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="lodepng::State" Collapsed="true">
+    <Position X="0.5" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>C:\Users\Admin\Desktop\ViveGameEngine\openvr-master\samples\shared\lodepng.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Struct Name="uivector" Collapsed="true">
+    <Position X="8.25" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAIAAAAAAAAAAQAAAAAAQAAAAAAA=</HashCode>
+      <FileName>C:\Users\Admin\Desktop\ViveGameEngine\openvr-master\samples\shared\lodepng.cpp</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="ucvector" Collapsed="true">
+    <Position X="6.5" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAIAAAAAAAAAAQAAAAAAQAAAAAAA=</HashCode>
+      <FileName>C:\Users\Admin\Desktop\ViveGameEngine\openvr-master\samples\shared\lodepng.cpp</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="HuffmanTree" Collapsed="true">
+    <Position X="8.25" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAABAAAAAAAAAAEAAAAAAAAAICAAAAAAAAACAA=</HashCode>
+      <FileName>C:\Users\Admin\Desktop\ViveGameEngine\openvr-master\samples\shared\lodepng.cpp</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="Coin" Collapsed="true">
+    <Position X="3" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAA=</HashCode>
+      <FileName>C:\Users\Admin\Desktop\ViveGameEngine\openvr-master\samples\shared\lodepng.cpp</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="Hash" Collapsed="true">
+    <Position X="6.5" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAIAAgAAAAAAAAIAAAAAAIAAAAAAAAAAAAAQAAAA=</HashCode>
+      <FileName>C:\Users\Admin\Desktop\ViveGameEngine\openvr-master\samples\shared\lodepng.cpp</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="ColorTree" Collapsed="true">
+    <Position X="4.75" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAABAAA=</HashCode>
+      <FileName>C:\Users\Admin\Desktop\ViveGameEngine\openvr-master\samples\shared\lodepng.cpp</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="LodePNGDecompressSettings" Collapsed="true">
+    <Position X="8.25" Y="2.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAIAAAACAAAAAAgAABAAAAAA=</HashCode>
+      <FileName>C:\Users\Admin\Desktop\ViveGameEngine\openvr-master\samples\shared\lodepng.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="LodePNGCompressSettings" Collapsed="true">
+    <Position X="4.75" Y="2.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAEAAAAIAAAACAAAAAAoAAAACAAAACIAAEAAAAAAA=</HashCode>
+      <FileName>C:\Users\Admin\Desktop\ViveGameEngine\openvr-master\samples\shared\lodepng.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="LodePNGColorMode" Collapsed="true">
+    <Position X="10" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAgAAAAAAAAAAAAAIAAIAAAAAAEQABAIAAAAAAIAAAA=</HashCode>
+      <FileName>C:\Users\Admin\Desktop\ViveGameEngine\openvr-master\samples\shared\lodepng.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="LodePNGTime" Collapsed="true">
+    <Position X="4.75" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAkAAAAAAAAAAAAAgAAAAAAAAQAAAAAAAAiAAAAAAA=</HashCode>
+      <FileName>C:\Users\Admin\Desktop\ViveGameEngine\openvr-master\samples\shared\lodepng.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="LodePNGInfo" Collapsed="true">
+    <Position X="3" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAABQgAQAEAAgAAAEAQAAEQQwEAAAACAAQECAAAAEkA=</HashCode>
+      <FileName>C:\Users\Admin\Desktop\ViveGameEngine\openvr-master\samples\shared\lodepng.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="LodePNGDecoderSettings" Collapsed="true">
+    <Position X="6.5" Y="2.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAABAAAEAAAAAAAAAAAAAAAAAAAABAAgAQAAAAAAA=</HashCode>
+      <FileName>C:\Users\Admin\Desktop\ViveGameEngine\openvr-master\samples\shared\lodepng.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="LodePNGColorProfile" Collapsed="true">
+    <Position X="3" Y="2.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAgAAAAAAAgAAAEBIAAEAAAAAAAAABAIAAAQAAAAAAA=</HashCode>
+      <FileName>C:\Users\Admin\Desktop\ViveGameEngine\openvr-master\samples\shared\lodepng.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="LodePNGEncoderSettings" Collapsed="true">
+    <Position X="10" Y="2.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAACABAAQAAAAAAAAAAAAAACAAIIAQgAAAAAA=</HashCode>
+      <FileName>C:\Users\Admin\Desktop\ViveGameEngine\openvr-master\samples\shared\lodepng.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="LodePNGState" Collapsed="true">
+    <Position X="0.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAQAAAAAAAAAAAAAIEAAAAAAAAAAAQAAAAAAQAAAQA=</HashCode>
+      <FileName>C:\Users\Admin\Desktop\ViveGameEngine\openvr-master\samples\shared\lodepng.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="Vector2" Collapsed="true">
+    <Position X="10" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAACRAAAAAEQIAQAAAEEAAAAAAABgAAAAAAA=</HashCode>
+      <FileName>C:\Users\Admin\Desktop\ViveGameEngine\openvr-master\samples\shared\Vectors.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="Vector3" Collapsed="true">
+    <Position X="3" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAICQAAAAAEQIAQAAAEEAAIAAAABgAQAAAAA=</HashCode>
+      <FileName>C:\Users\Admin\Desktop\ViveGameEngine\openvr-master\samples\shared\Vectors.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="Vector4" Collapsed="true">
+    <Position X="4.75" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAECQAAAAAEQIAQAAAEEAAAAAAAhgAQAAAAA=</HashCode>
+      <FileName>C:\Users\Admin\Desktop\ViveGameEngine\openvr-master\samples\shared\Vectors.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Enum Name="LodePNGColorType" Collapsed="true">
+    <Position X="3" Y="6" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAEAIBAAAAAAAAAACAAAAAAAIAA=</HashCode>
+      <FileName>C:\Users\Admin\Desktop\ViveGameEngine\openvr-master\samples\shared\lodepng.h</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="LodePNGFilterStrategy" Collapsed="true">
+    <Position X="4.75" Y="6" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>QAAAAARAAAAAAAAAAAAAAAAAAAAAQAAAACAAAAAAAAA=</HashCode>
+      <FileName>C:\Users\Admin\Desktop\ViveGameEngine\openvr-master\samples\shared\lodepng.h</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

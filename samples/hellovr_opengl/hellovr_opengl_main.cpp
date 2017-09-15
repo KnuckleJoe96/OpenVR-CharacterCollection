@@ -4,6 +4,12 @@
 #include <GL/glew.h>
 #include <SDL_opengl.h>
 
+//reading obj files
+#include <iostream>
+#include <fstream>
+
+//string operations
+
 #include <GL/glu.h>
 
 #include <stdio.h>
@@ -15,6 +21,9 @@
 #include "shared/lodepng.h"
 #include "shared/Matrices.h"
 #include "shared/pathtools.h"
+
+#include "LoadObj.h"
+
 
 #ifndef _WIN32
 #define APIENTRY
@@ -33,22 +42,22 @@ void ThreadSleep(unsigned long nMilliseconds)
 #endif
 }
 
-class CGLRenderModel
-{
-public:
-	~CGLRenderModel();
-
-	void Cleanup();
-	const std::string & GetName() const { return m_sModelName; }
-
-private:
-	GLuint m_glVertBuffer;
-	GLuint m_glIndexBuffer;
-	GLuint m_glVertArray;
-	GLuint m_glTexture;
-	GLsizei m_unVertexCount;
-	std::string m_sModelName;
-};
+//class CGLRenderModel
+//{
+//public:
+//	~CGLRenderModel();
+//
+//	void Cleanup();
+//	const std::string & GetName() const { return m_sModelName; }
+//
+//private:
+//	GLuint m_glVertBuffer;
+//	GLuint m_glIndexBuffer;
+//	GLuint m_glVertArray;
+//	GLuint m_glTexture;
+//	GLsizei m_unVertexCount;
+//	std::string m_sModelName;
+//};
 
 static bool g_bPrintf = true;
 
@@ -74,7 +83,11 @@ public:
 
 	void SetupScene();
 	void AddCubeToScene(Matrix4 mat, std::vector<float> &vertdata);
-	void AddCubeVertex(float fl0, float fl1, float fl2, float fl3, float fl4, std::vector<float> &vertdata);
+	void AddVertex(float fl0, float fl1, float fl2, float fl3, float fl4, std::vector<float> &vertdata);
+
+	void AddTriangleToScene(Matrix4 mat, std::vector<float>& vertdata);
+	void AddObjToScene(Matrix4 mat, const char* path, std::vector<float> &vertdata);
+	void AddMeshToScene(Matrix4 mat, std::vector<float> &vertdata, std::vector<Vector4> inputVertices, std::vector<Vector4> inputFaces);
 
 	bool SetupStereoRenderTargets();
 	void SetupCompanionWindow();
@@ -183,8 +196,8 @@ private: // OpenGL bookkeeping
 	uint32_t m_nRenderWidth;
 	uint32_t m_nRenderHeight;
 
-	std::vector< CGLRenderModel * > m_vecRenderModels;
-	CGLRenderModel *m_rTrackedDeviceToRenderModel[vr::k_unMaxTrackedDeviceCount];
+	//std::vector< CGLRenderModel * > m_vecRenderModels;
+	//CGLRenderModel *m_rTrackedDeviceToRenderModel[vr::k_unMaxTrackedDeviceCount];
 };
 
 //-----------------------------------------------------------------------------
@@ -223,7 +236,7 @@ CMainApplication::CMainApplication(int argc, char *argv[])
 	, m_nSceneMatrixLocation(-1)
 	, m_nControllerMatrixLocation(-1)
 	, m_nRenderModelMatrixLocation(-1)
-	, m_iSceneVolumeInit(20)
+	, m_iSceneVolumeInit(5)
 	, m_bShowCubes(true) {};
 
 
@@ -266,10 +279,6 @@ bool CMainApplication::BInit()
 
 	if (eError != vr::VRInitError_None)
 	{
-		//m_pHMD = NULL;
-		//char buf[1024];
-		//sprintf_s(buf, sizeof(buf), "Unable to init VR runtime: %s", vr::VR_GetVRInitErrorAsEnglishDescription(eError));
-		//SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "VR_Init Failed", buf, NULL);
 		return false;
 	}
 
@@ -284,11 +293,9 @@ bool CMainApplication::BInit()
 	glewExperimental = GL_TRUE;
 	GLenum nGlewError = glewInit(); // FUNKTIONSAUFRUF --------------------------------------------------------------
 	if (nGlewError != GLEW_OK) {
-		//printf("%s - Error initializing GLEW! %s\n", __FUNCTION__, glewGetErrorString(nGlewError));
 		return false;
 	}
 	glGetError(); // to clear the error caused deep in GLEW
-
 
 	std::string strWindowTitle = "Unser IT-Projekt";
 	SDL_SetWindowTitle(m_pCompanionWindow, strWindowTitle.c_str());
@@ -642,7 +649,7 @@ bool CMainApplication::SetupTexturemaps()
 
 
 //-----------------------------------------------------------------------------
-// Purpose: create a sea of cubes
+// Purpose: Create Items
 //-----------------------------------------------------------------------------
 void CMainApplication::SetupScene()
 {
@@ -652,8 +659,13 @@ void CMainApplication::SetupScene()
 	std::vector<float> vertdataarray;
 
 	Matrix4 matScale;
+	double a = m_fScale;
+
 	matScale.scale(m_fScale, m_fScale, m_fScale);
+
 	Matrix4 matTransform;
+	matTransform.translate(5,1,0);
+
 	matTransform.translate(
 		-((float)m_iSceneVolumeWidth * m_fScaleSpacing) / 2.f,
 		-((float)m_iSceneVolumeHeight * m_fScaleSpacing) / 2.f,
@@ -661,19 +673,35 @@ void CMainApplication::SetupScene()
 
 	Matrix4 mat = matScale * matTransform;
 
-	for (int z = 0; z< m_iSceneVolumeDepth; z++)
-	{
-		for (int y = 0; y< m_iSceneVolumeHeight; y++)
-		{
-			for (int x = 0; x< m_iSceneVolumeWidth; x++)
-			{
-				AddCubeToScene(mat, vertdataarray);
-				mat = mat * Matrix4().translate(m_fScaleSpacing, 0, 0);
-			}
-			mat = mat * Matrix4().translate(-((float)m_iSceneVolumeWidth) * m_fScaleSpacing, m_fScaleSpacing, 0);
-		}
-		mat = mat * Matrix4().translate(0, -((float)m_iSceneVolumeHeight) * m_fScaleSpacing, m_fScaleSpacing);
-	}
+	//for (int z = 0; z< m_iSceneVolumeDepth; z++)
+	//{
+	//	for (int y = 0; y< m_iSceneVolumeHeight; y++)
+	//	{
+	//		for (int x = 0; x< m_iSceneVolumeWidth; x++)
+	//		{
+	//			AddCubeToScene(mat, vertdataarray);
+	//			mat = mat * Matrix4().translate(m_fScaleSpacing, 0, 0);
+
+	//			//AddMeshToScene(mat, vertdataarray);
+
+	//			//AddTriangleToScene(mat, vertdataarray);
+	//			//mat = mat * Matrix4().translate(m_fScaleSpacing, 0, 0);
+
+	//		}
+	//	//	mat = mat * Matrix4().translate(-((float)m_iSceneVolumeWidth) * m_fScaleSpacing, m_fScaleSpacing, 0);
+	//	//}
+	//	//mat = mat * Matrix4().translate(0, -((float)m_iSceneVolumeHeight) * m_fScaleSpacing, m_fScaleSpacing);
+
+	//	//mat = mat * Matrix4().translate(-5,5,0);
+	//}
+	//mat = mat * Matrix4().translate(0 ,5,-5);
+	//}
+
+	//load obj
+	//const char* objPath = "..\\bin\\3d-models\\Bigmax_White_OBJ.obj";
+	const char* objPath = "..\\bin\\3d-models\\simple_object.obj";
+	AddObjToScene(mat, objPath, vertdataarray);
+
 	m_uiVertcount = vertdataarray.size() / 5;
 
 	glGenVertexArrays(1, &m_unSceneVAO);
@@ -696,9 +724,9 @@ void CMainApplication::SetupScene()
 
 
 //-----------------------------------------------------------------------------
-// Purpose:
+// Purpose: 
 //-----------------------------------------------------------------------------
-void CMainApplication::AddCubeVertex(float fl0, float fl1, float fl2, float fl3, float fl4, std::vector<float> &vertdata)
+void CMainApplication::AddVertex(float fl0, float fl1, float fl2, float fl3, float fl4, std::vector<float> &vertdata)
 {
 	vertdata.push_back(fl0);
 	vertdata.push_back(fl1);
@@ -707,7 +735,68 @@ void CMainApplication::AddCubeVertex(float fl0, float fl1, float fl2, float fl3,
 	vertdata.push_back(fl4);
 }
 
+void CMainApplication::AddObjToScene(Matrix4 mat, const char* path, std::vector<float> &vertdata) {
+	std::vector<Vector4> vertices;
+	std::vector<Vector2> textCoords;
+	std::vector<Vector3> triangles;
+	std::vector<Vector3> trianglesTxtrIndices;
 
+	LoadObj(path, &vertices, &textCoords, &triangles, &trianglesTxtrIndices);
+
+	// Still unclear, 4th and 5th parameter that gets pushed into vertdata (0's and 1's)
+	for (unsigned i = 0; i < triangles.size(); i++) {
+		unsigned int vi1 = (unsigned int)(triangles[i].x),
+			vi2 = (unsigned int)(triangles[i].y),
+			vi3 = (unsigned int)(triangles[i].z);
+		unsigned int vti1 = (unsigned int)(trianglesTxtrIndices[i].x),
+			vti2 = (unsigned int)(trianglesTxtrIndices[i].y),
+			vti3 = (unsigned int)(trianglesTxtrIndices[i].z);
+
+		Vector4 v1 = mat * vertices[vi1],
+			v2 = mat * vertices[vi2],
+			v3 = mat * vertices[vi3];
+		Vector2 vt1 = textCoords[vti1],
+			vt2 = textCoords[vti2],
+			vt3 = textCoords[vti3];
+
+		AddVertex(v1.x/10, v1.y/10, v1.z/10, vt1.x, vt1.y, vertdata);
+		AddVertex(v2.x/10, v2.y/10, v2.z/10, vt2.x, vt2.y, vertdata);
+		AddVertex(v3.x/10, v3.y/10, v3.z/10, vt3.x, vt3.y, vertdata);
+	}
+}
+
+//CGLRenderModel CMainApplication::AddMeshToScene(Matrix4 mat, std::vector<float> &vertdata, std::vector<Vector4> inputVertices, std::vector<Vector4> inputFaces) {
+//	//foreach f in inputFaces:
+//	//	var v1, v2, v3 = f[0, 1, 2]
+//
+//}
+
+void CMainApplication::AddTriangleToScene(Matrix4 mat, std::vector<float> &vertdata) {
+	Vector4 A = mat * Vector4(0, 0, 0, 0);
+	Vector4 B = mat * Vector4(1, 0, 1, 0);
+	Vector4 C = mat * Vector4(1, 0, 0, 0);
+	Vector4 D = mat * Vector4(0.5, 1, 0.5, 0);
+
+	//Boden
+	AddVertex(A.x, A.y, A.z, 0, 1, vertdata);
+	AddVertex(C.x, C.y, C.z, 1, 1, vertdata);
+	AddVertex(B.x, B.y, B.z, 1, 0, vertdata);
+
+	//Seite1
+	AddVertex(A.x, A.y, A.z, 0, 1, vertdata);
+	AddVertex(D.x, D.y, D.z, 1, 1, vertdata);
+	AddVertex(B.x, B.y, B.z, 1, 0, vertdata);
+
+	//Seite2
+	AddVertex(A.x, A.y, A.z, 1, 0, vertdata);
+	AddVertex(D.x, D.y, D.z, 1, 1, vertdata);
+	AddVertex(C.x, C.y, C.z, 1,0, vertdata);
+
+	//Seite3
+	AddVertex(C.x, C.y, C.z, 0, 1, vertdata);
+	AddVertex(D.x, D.y, D.z, 0, 1, vertdata);
+	AddVertex(B.x, B.y, B.z, 0, 1, vertdata);
+}
 //-----------------------------------------------------------------------------
 // Purpose:
 //-----------------------------------------------------------------------------
@@ -715,57 +804,58 @@ void CMainApplication::AddCubeToScene(Matrix4 mat, std::vector<float> &vertdata)
 {
 	// Matrix4 mat( outermat.data() );
 
-	Vector4 A = mat * Vector4(0, 0, 0, 1);
+	Vector4 A = mat * Vector4(-1, 0, 0, 1);
 	Vector4 B = mat * Vector4(1, 0, 0, 1);
 	Vector4 C = mat * Vector4(1, 1, 0, 1);
-	Vector4 D = mat * Vector4(0, 1, 0, 1);
-	Vector4 E = mat * Vector4(0, 0, 1, 1);
+	Vector4 D = mat * Vector4(-1, 1, 0, 1);
+	Vector4 E = mat * Vector4(-1, 0, 1, 1);
 	Vector4 F = mat * Vector4(1, 0, 1, 1);
 	Vector4 G = mat * Vector4(1, 1, 1, 1);
-	Vector4 H = mat * Vector4(0, 1, 1, 1);
+	Vector4 H = mat * Vector4(-1, 1, 1, 1);
+
 
 	// triangles instead of quads
-	AddCubeVertex(E.x, E.y, E.z, 0, 1, vertdata); //Front
-	AddCubeVertex(F.x, F.y, F.z, 1, 1, vertdata);
-	AddCubeVertex(G.x, G.y, G.z, 1, 0, vertdata);
-	AddCubeVertex(G.x, G.y, G.z, 1, 0, vertdata);
-	AddCubeVertex(H.x, H.y, H.z, 0, 0, vertdata);
-	AddCubeVertex(E.x, E.y, E.z, 0, 1, vertdata);
+	AddVertex(E.x, E.y, E.z, 0, 1, vertdata); //Front
+	AddVertex(F.x, F.y, F.z, 1, 1, vertdata);
+	AddVertex(G.x, G.y, G.z, 1, 0, vertdata);
+	AddVertex(G.x, G.y, G.z, 1, 0, vertdata);
+	AddVertex(H.x, H.y, H.z, 0, 0, vertdata);
+	AddVertex(E.x, E.y, E.z, 0, 1, vertdata);
 
-	AddCubeVertex(B.x, B.y, B.z, 0, 1, vertdata); //Back
-	AddCubeVertex(A.x, A.y, A.z, 1, 1, vertdata);
-	AddCubeVertex(D.x, D.y, D.z, 1, 0, vertdata);
-	AddCubeVertex(D.x, D.y, D.z, 1, 0, vertdata);
-	AddCubeVertex(C.x, C.y, C.z, 0, 0, vertdata);
-	AddCubeVertex(B.x, B.y, B.z, 0, 1, vertdata);
+	AddVertex(B.x, B.y, B.z, 0, 1, vertdata); //Back
+	AddVertex(A.x, A.y, A.z, 1, 1, vertdata);
+	AddVertex(D.x, D.y, D.z, 1, 0, vertdata);
+	AddVertex(D.x, D.y, D.z, 1, 0, vertdata);
+	AddVertex(C.x, C.y, C.z, 0, 0, vertdata);
+	AddVertex(B.x, B.y, B.z, 0, 1, vertdata);
 
-	AddCubeVertex(H.x, H.y, H.z, 0, 1, vertdata); //Top
-	AddCubeVertex(G.x, G.y, G.z, 1, 1, vertdata);
-	AddCubeVertex(C.x, C.y, C.z, 1, 0, vertdata);
-	AddCubeVertex(C.x, C.y, C.z, 1, 0, vertdata);
-	AddCubeVertex(D.x, D.y, D.z, 0, 0, vertdata);
-	AddCubeVertex(H.x, H.y, H.z, 0, 1, vertdata);
+	AddVertex(H.x, H.y, H.z, 0, 1, vertdata); //Top
+	AddVertex(G.x, G.y, G.z, 1, 1, vertdata);
+	AddVertex(C.x, C.y, C.z, 1, 0, vertdata);
+	AddVertex(C.x, C.y, C.z, 1, 0, vertdata);
+	AddVertex(D.x, D.y, D.z, 0, 0, vertdata);
+	AddVertex(H.x, H.y, H.z, 0, 1, vertdata);
 
-	AddCubeVertex(A.x, A.y, A.z, 0, 1, vertdata); //Bottom
-	AddCubeVertex(B.x, B.y, B.z, 1, 1, vertdata);
-	AddCubeVertex(F.x, F.y, F.z, 1, 0, vertdata);
-	AddCubeVertex(F.x, F.y, F.z, 1, 0, vertdata);
-	AddCubeVertex(E.x, E.y, E.z, 0, 0, vertdata);
-	AddCubeVertex(A.x, A.y, A.z, 0, 1, vertdata);
+	AddVertex(A.x, A.y, A.z, 0, 1, vertdata); //Bottom
+	AddVertex(B.x, B.y, B.z, 1, 1, vertdata);
+	AddVertex(F.x, F.y, F.z, 1, 0, vertdata);
+	AddVertex(F.x, F.y, F.z, 1, 0, vertdata);
+	AddVertex(E.x, E.y, E.z, 0, 0, vertdata);
+	AddVertex(A.x, A.y, A.z, 0, 1, vertdata);
 
-	AddCubeVertex(A.x, A.y, A.z, 0, 1, vertdata); //Left
-	AddCubeVertex(E.x, E.y, E.z, 1, 1, vertdata);
-	AddCubeVertex(H.x, H.y, H.z, 1, 0, vertdata);
-	AddCubeVertex(H.x, H.y, H.z, 1, 0, vertdata);
-	AddCubeVertex(D.x, D.y, D.z, 0, 0, vertdata);
-	AddCubeVertex(A.x, A.y, A.z, 0, 1, vertdata);
+	AddVertex(A.x, A.y, A.z, 0, 1, vertdata); //Left
+	AddVertex(E.x, E.y, E.z, 1, 1, vertdata);
+	AddVertex(H.x, H.y, H.z, 1, 0, vertdata);
+	AddVertex(H.x, H.y, H.z, 1, 0, vertdata);
+	AddVertex(D.x, D.y, D.z, 0, 0, vertdata);
+	AddVertex(A.x, A.y, A.z, 0, 1, vertdata);
 
-	AddCubeVertex(F.x, F.y, F.z, 0, 1, vertdata); //Right
-	AddCubeVertex(B.x, B.y, B.z, 1, 1, vertdata);
-	AddCubeVertex(C.x, C.y, C.z, 1, 0, vertdata);
-	AddCubeVertex(C.x, C.y, C.z, 1, 0, vertdata);
-	AddCubeVertex(G.x, G.y, G.z, 0, 0, vertdata);
-	AddCubeVertex(F.x, F.y, F.z, 0, 1, vertdata);
+	AddVertex(F.x, F.y, F.z, 0, 1, vertdata); //Right
+	AddVertex(B.x, B.y, B.z, 1, 1, vertdata);
+	AddVertex(C.x, C.y, C.z, 1, 0, vertdata);
+	AddVertex(C.x, C.y, C.z, 1, 0, vertdata);
+	AddVertex(G.x, G.y, G.z, 0, 0, vertdata);
+	AddVertex(F.x, F.y, F.z, 0, 1, vertdata);
 }
 
 //-----------------------------------------------------------------------------
@@ -1108,26 +1198,26 @@ Matrix4 CMainApplication::ConvertSteamVRMatrixToMatrix4(const vr::HmdMatrix34_t 
 }
 
 
-CGLRenderModel::~CGLRenderModel()
-{
-	Cleanup();
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: Frees the GL resources for a render model
-//-----------------------------------------------------------------------------
-void CGLRenderModel::Cleanup()
-{
-	if (m_glVertBuffer)
-	{
-		glDeleteBuffers(1, &m_glIndexBuffer);
-		glDeleteVertexArrays(1, &m_glVertArray);
-		glDeleteBuffers(1, &m_glVertBuffer);
-		m_glIndexBuffer = 0;
-		m_glVertArray = 0;
-		m_glVertBuffer = 0;
-	}
-}
+//CGLRenderModel::~CGLRenderModel()
+//{
+//	Cleanup();
+//}
+//
+////-----------------------------------------------------------------------------
+//// Purpose: Frees the GL resources for a render model
+////-----------------------------------------------------------------------------
+//void CGLRenderModel::Cleanup()
+//{
+//	if (m_glVertBuffer)
+//	{
+//		glDeleteBuffers(1, &m_glIndexBuffer);
+//		glDeleteVertexArrays(1, &m_glVertArray);
+//		glDeleteBuffers(1, &m_glVertBuffer);
+//		m_glIndexBuffer = 0;
+//		m_glVertArray = 0;
+//		m_glVertBuffer = 0;
+//	}
+//}
 
 
 //-----------------------------------------------------------------------------
