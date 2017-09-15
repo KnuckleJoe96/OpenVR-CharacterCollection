@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <algorithm>
 
 #include <string>
 #include <sstream>
@@ -10,6 +11,14 @@
 #include <iterator>
 
 #include <vector>
+
+struct IsEmpty
+{
+	bool operator()(const std::string& s)
+	{
+		return s == "";
+	}
+};
 
 void LoadObj(const char* path, std::vector<Vector4> * vertices, std::vector<Vector2> * textureCoords, std::vector<Vector3> * triangles, std::vector<Vector3> * textureIndexTriplet);
 void HandleVertexLine(std::vector<Vector4> * vertices);
@@ -33,22 +42,24 @@ void LoadObj(const char* path, std::vector<Vector4> * vertices, std::vector<Vect
 
 		//delete empty strings 
 		for (unsigned i = 0; i < splittetLine.size(); i++) {
-			if (splittetLine[i] == "") splittetLine.erase(splittetLine.begin() + i);
+			splittetLine.erase(std::remove_if(splittetLine.begin(), splittetLine.end(), IsEmpty()), splittetLine.end());
+			//if (splittetLine[i] == "") splittetLine.erase(splittetLine.begin() + i);
 		}
 
-		std::string lineType = splittetLine[0];
-		splittetLine.erase(splittetLine.begin());
+		if (splittetLine.size() > 0) {
+			std::string lineType = splittetLine[0];
+			splittetLine.erase(splittetLine.begin());
 
-		if (lineType == "v") {
-			HandleVertexLine(vertices);
+			if (lineType == "v") {
+				HandleVertexLine(vertices);
+			}
+			else if (lineType == "vt") {
+				HandleTextureCoordLine(textureCoords);
+			}
+			else if (lineType == "f") {
+				HandleFaceLine(triangles, trianglesTxtrIndices);
+			}
 		}
-		else if (lineType == "vt") {
-			HandleTextureCoordLine(textureCoords);
-		}
-		else if (lineType == "f") {
-			HandleFaceLine(triangles, trianglesTxtrIndices);
-		}
-
 	}
 }
 
@@ -64,10 +75,10 @@ void HandleVertexLine(std::vector<Vector4> * vertices) {
 }
 
 void HandleTextureCoordLine(std::vector<Vector2> * textureCoords) {
-	if (splittetLine.size() == 2) {
+	if (splittetLine.size() >= 2) {
 		float vt1 = std::stof(splittetLine[0]),
 			vt2 = std::stof(splittetLine[1]);
-		textureCoords->push_back(Vector2(vt1, vt2));
+		textureCoords->push_back(Vector2(vt1, 1 - vt2));
 	}
 }
 
@@ -75,10 +86,14 @@ void HandleFaceLine(std::vector<Vector3> * triangles, std::vector<Vector3> * tri
 	faceIndices.clear();
 	txtrIndices.clear();
 
-	for (unsigned i = 1; i < splittetLine.size(); i++) {
+	for (unsigned i = 0; i < splittetLine.size(); i++) {
 		std::vector<std::string> indexTriplet = SplitStringAt(splittetLine[i], '/');
 		faceIndices.push_back(indexTriplet[0]);
 		txtrIndices.push_back(indexTriplet[1]);
+	}
+
+	for (unsigned i = 0; i < txtrIndices.size(); i++) {
+		if (txtrIndices[i] == "") txtrIndices[i] = "1";
 	}
 
 	switch (faceIndices.size()) {

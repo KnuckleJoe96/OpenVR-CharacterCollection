@@ -79,9 +79,9 @@ public:
 	bool HandleInput();
 	void RenderFrame();
 
-	bool SetupTexturemaps();
+	bool SetupTexturemaps(const char* path);
 
-	void SetupScene();
+	void SetupScene(const char * path);
 	void AddCubeToScene(Matrix4 mat, std::vector<float> &vertdata);
 	void AddVertex(float fl0, float fl1, float fl2, float fl3, float fl4, std::vector<float> &vertdata);
 
@@ -346,8 +346,18 @@ bool CMainApplication::BInitGL()
 	if (!CreateAllShaders())
 		return false;
 
-	SetupTexturemaps(); // loads texture
-	SetupScene(); // loads cubes and puts texture on them
+	std::vector<const char *> textureVector = std::vector<const char *>();
+	std::vector<const char *> objectVector = std::vector<const char *>();
+
+	textureVector.push_back("../3d-models/alduin_.png");
+	objectVector.push_back("../3d-models/alduin.obj");
+
+	for (unsigned i = 0; i < textureVector.size(); i++){
+		SetupTexturemaps(textureVector[i]); // loads texture
+		SetupScene(objectVector[i]); // loads cubes and puts texture on them
+	}
+
+
 	SetupCameras(); // gets projection matrix and pose of left and right camera
 	SetupStereoRenderTargets(); // creates frame buffer for render objects
 	SetupCompanionWindow(); // sets up windows for right and left eye
@@ -613,10 +623,12 @@ bool CMainApplication::CreateAllShaders()
 //-----------------------------------------------------------------------------
 // Purpose:
 //-----------------------------------------------------------------------------
-bool CMainApplication::SetupTexturemaps()
+bool CMainApplication::SetupTexturemaps(const char* path)
 {
 	std::string sExecutableDirectory = Path_StripFilename(Path_GetExecutablePath());
-	std::string strFullPath = Path_MakeAbsolute("../cube_texture.png", sExecutableDirectory);
+	//std::string strFullPath = Path_MakeAbsolute("../cube_texture.png", sExecutableDirectory);
+	//std::string strFullPath = Path_MakeAbsolute("../3d-models/Mewtwo_with_stones_.png", sExecutableDirectory);
+	std::string strFullPath = Path_MakeAbsolute(path, sExecutableDirectory);
 
 	std::vector<unsigned char> imageRGBA;
 	unsigned nImageWidth, nImageHeight;
@@ -651,7 +663,7 @@ bool CMainApplication::SetupTexturemaps()
 //-----------------------------------------------------------------------------
 // Purpose: Create Items
 //-----------------------------------------------------------------------------
-void CMainApplication::SetupScene()
+void CMainApplication::SetupScene(const char * path)
 {
 	if (!m_pHMD)
 		return;
@@ -698,9 +710,10 @@ void CMainApplication::SetupScene()
 	//}
 
 	//load obj
-	//const char* objPath = "..\\bin\\3d-models\\Bigmax_White_OBJ.obj";
-	const char* objPath = "..\\bin\\3d-models\\simple_object.obj";
-	AddObjToScene(mat, objPath, vertdataarray);
+	//const char* objPath = "..\\bin\\3d-models\\Mewtwo_with_stones.obj";
+	//const char* objPath = "..\\bin\\3d-models\\alduin.obj";
+	//const char* objPath = "..\\bin\\3d-models\\simple_object.obj";
+	AddObjToScene(mat, path, vertdataarray);
 
 	m_uiVertcount = vertdataarray.size() / 5;
 
@@ -759,9 +772,9 @@ void CMainApplication::AddObjToScene(Matrix4 mat, const char* path, std::vector<
 			vt2 = textCoords[vti2],
 			vt3 = textCoords[vti3];
 
-		AddVertex(v1.x/10, v1.y/10, v1.z/10, vt1.x, vt1.y, vertdata);
-		AddVertex(v2.x/10, v2.y/10, v2.z/10, vt2.x, vt2.y, vertdata);
-		AddVertex(v3.x/10, v3.y/10, v3.z/10, vt3.x, vt3.y, vertdata);
+		AddVertex(v1.x/120, v1.y/120, v1.z/120, vt1.x, vt1.y, vertdata);
+		AddVertex(v2.x/120, v2.y/120, v2.z/120, vt2.x, vt2.y, vertdata);
+		AddVertex(v3.x/120, v3.y/120, v3.z/120, vt3.x, vt3.y, vertdata);
 	}
 }
 
